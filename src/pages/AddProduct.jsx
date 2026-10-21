@@ -1,63 +1,68 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CATEGORIES } from "../data";
+import { CATEGORIES } from "../data.js";
 
 export default function AddProduct({ products, addProduct }) {
-  const navigate = useNavigate();
-
   const [name, setName] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
   const [price, setPrice] = useState("");
   const [stock, setStock] = useState("");
-  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (
-      !name.trim() ||
+      name.trim() === "" ||
+      category === "" ||
       price.trim() === "" ||
       stock.trim() === ""
     ) {
-      setMessage("Vui lòng nhập đầy đủ thông tin");
+      setError("Vui lòng nhập đầy đủ thông tin");
       return;
     }
 
-    const numberPrice = Number(price);
-    const numberStock = Number(stock);
+    const numericPrice = Number(price);
+    const numericStock = Number(stock);
 
     if (
-      numberPrice <= 0 ||
-      !Number.isFinite(numberPrice) ||
-      !Number.isInteger(numberStock) ||
-      numberStock < 0
+      numericPrice <= 0 ||
+      !Number.isFinite(numericPrice) ||
+      numericStock < 0 ||
+      !Number.isInteger(numericStock) ||
+      !Number.isFinite(numericStock)
     ) {
-      setMessage(
-        "Giá phải lớn hơn 0, số lượng là số nguyên không âm"
-      );
+      setError("Giá phải lớn hơn 0, số lượng là số nguyên không âm");
       return;
     }
 
-    const maxId = products.reduce(
-      (max, p) => Math.max(max, p.id),
-      0
-    );
+    const newId =
+      products.length === 0
+        ? 1
+        : Math.max(...products.map((p) => p.id)) + 1;
 
     const newProduct = {
-      id: maxId + 1,
+      id: newId,
       name: name.trim(),
       category,
-      price: numberPrice,
-      stock: numberStock
+      price: numericPrice,
+      stock: numericStock,
     };
 
     addProduct(newProduct);
-    navigate("/products", { replace: true });
+
+    const message = `Thêm sản phẩm "${newProduct.name}" thành công`;
+
+    navigate("/products", {
+      replace: true,
+      state: { message },
+    });
   };
 
   return (
-    <>
+    <div>
       <h1>Thêm sản phẩm</h1>
 
       <form onSubmit={handleSubmit}>
@@ -65,6 +70,7 @@ export default function AddProduct({ products, addProduct }) {
           <label htmlFor="name">Tên sản phẩm</label>
           <input
             id="name"
+            type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
@@ -90,6 +96,7 @@ export default function AddProduct({ products, addProduct }) {
           <input
             id="price"
             type="number"
+            min="1"
             value={price}
             onChange={(e) => setPrice(e.target.value)}
           />
@@ -100,15 +107,17 @@ export default function AddProduct({ products, addProduct }) {
           <input
             id="stock"
             type="number"
+            min="0"
+            step="1"
             value={stock}
             onChange={(e) => setStock(e.target.value)}
           />
         </div>
 
-        {message && <p className="error">{message}</p>}
+        {error && <p role="alert">{error}</p>}
 
         <button type="submit">Thêm</button>
       </form>
-    </>
+    </div>
   );
 }

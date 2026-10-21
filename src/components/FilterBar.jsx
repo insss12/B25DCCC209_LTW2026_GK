@@ -8,24 +8,32 @@ export default function FilterBar({
 }) {
   return (
     <div className="filter-bar">
-      <input
-        type="text"
-        placeholder="Tìm kiếm sản phẩm..."
-        value={query}
-        onChange={(e) => onQueryChange(e.target.value)}
-      />
+      <div>
+        <label htmlFor="search">Tìm kiếm</label>
+        <input
+          id="search"
+          type="text"
+          value={query}
+          placeholder="Nhập tên sản phẩm"
+          onChange={(e) => onQueryChange(e.target.value)}
+        />
+      </div>
 
-      <select
-        value={category}
-        onChange={(e) => onCategoryChange(e.target.value)}
-      >
-        <option value="">Tất cả danh mục</option>
-        {CATEGORIES.map((item) => (
-          <option key={item} value={item}>
-            {item}
-          </option>
-        ))}
-      </select>
+      <div>
+        <label htmlFor="category">Danh mục</label>
+        <select
+          id="category"
+          value={category}
+          onChange={(e) => onCategoryChange(e.target.value)}
+        >
+          <option value="">Tất cả danh mục</option>
+          {CATEGORIES.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
   );
 }

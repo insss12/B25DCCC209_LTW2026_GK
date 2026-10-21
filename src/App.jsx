@@ -17,10 +17,29 @@ export default function App() {
 
   useEffect(() => {
     const controller = new AbortController();
+    const savedProducts = localStorage.getItem("gk_products");
+
+    if (savedProducts !== null) {
+      try {
+        setProducts(JSON.parse(savedProducts));
+        setLoading(false);
+      } catch {
+        localStorage.removeItem("gk_products");
+      }
+    }
+
+    if (savedProducts !== null) {
+      try {
+        JSON.parse(savedProducts);
+        return () => controller.abort();
+      } catch {
+        // Dữ liệu lưu không hợp lệ, tải lại từ API.
+      }
+    }
 
     axios
       .get("/data/products.json", {
-        signal: controller.signal
+        signal: controller.signal,
       })
       .then((res) => {
         setProducts(res.data);
@@ -36,24 +55,26 @@ export default function App() {
         }
       });
 
-    return () => {
-      controller.abort();
-    };
+    return () => controller.abort();
   }, []);
 
+  useEffect(() => {
+    if (!loading) {
+      localStorage.setItem("gk_products", JSON.stringify(products));
+    }
+  }, [products, loading]);
+
   const increaseStock = (id) => {
-    setProducts((oldProducts) =>
-      oldProducts.map((p) =>
-        p.id === id
-          ? { ...p, stock: p.stock + 1 }
-          : p
+    setProducts((old) =>
+      old.map((p) =>
+        p.id === id ? { ...p, stock: p.stock + 1 } : p
       )
     );
   };
 
   const decreaseStock = (id) => {
-    setProducts((oldProducts) =>
-      oldProducts.map((p) =>
+    setProducts((old) =>
+      old.map((p) =>
         p.id === id && p.stock > 0
           ? { ...p, stock: p.stock - 1 }
           : p
@@ -62,33 +83,20 @@ export default function App() {
   };
 
   const deleteProduct = (id) => {
-    setProducts((oldProducts) =>
-      oldProducts.filter((p) => p.id !== id)
-    );
+    setProducts((old) => old.filter((p) => p.id !== id));
   };
 
   const addProduct = (product) => {
-    setProducts((oldProducts) => [
-      ...oldProducts,
-      product
-    ]);
+    setProducts((old) => [...old, product]);
   };
 
   return (
     <Routes>
       <Route
         path="/"
-        element={
-          <Layout
-            loading={loading}
-            error={error}
-          />
-        }
+        element={<Layout loading={loading} error={error} />}
       >
-        <Route
-          index
-          element={<Home products={products} />}
-        />
+        <Route index element={<Home products={products} />} />
 
         <Route
           path="products"

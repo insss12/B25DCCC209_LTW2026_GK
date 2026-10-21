@@ -22,17 +22,20 @@ export default function ProductList({
   useEffect(() => {
     const currentMessage = location.state?.message;
 
-    if (currentMessage) {
-      setMessage(currentMessage);
-      window.history.replaceState({}, document.title);
+    if (!currentMessage) {
+      setMessage("");
+      return;
     }
+
+    setMessage(currentMessage);
 
     const timer = setTimeout(() => {
       setMessage("");
+      window.history.replaceState({}, document.title);
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [location.state]);
+  }, [location.key, location.state]);
 
   const filteredProducts = products.filter((product) => {
     const matchesName = product.name
@@ -49,7 +52,7 @@ export default function ProductList({
     <div>
       <h1>Danh sách sản phẩm</h1>
 
-      {message && <p>{message}</p>}
+      {message && <p role="status">{message}</p>}
 
       <FilterBar
         query={query}
