@@ -1,69 +1,71 @@
-
-import { Link } from "react-router-dom";
-import { formatMoney } from "../data";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import FilterBar from "../components/FilterBar.jsx";
+import ProductTable from "../components/ProductTable.jsx";
 
 export default function ProductList({
   products,
   increaseStock,
   decreaseStock,
-  deleteProduct
+  deleteProduct,
 }) {
+  const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("");
+  const [message, setMessage] = useState("");
+
+  const location = useLocation();
+
+  const handleQueryShift = (value) => {
+    setQuery(value);
+  };
+
+  useEffect(() => {
+    const currentMessage = location.state?.message;
+
+    if (currentMessage) {
+      setMessage(currentMessage);
+      window.history.replaceState({}, document.title);
+    }
+
+    const timer = setTimeout(() => {
+      setMessage("");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [location.state]);
+
+  const filteredProducts = products.filter((product) => {
+    const matchesName = product.name
+      .toLowerCase()
+      .includes(query.toLowerCase());
+
+    const matchesCategory =
+      category === "" || product.category === category;
+
+    return matchesName && matchesCategory;
+  });
+
   return (
-    <>
+    <div>
       <h1>Danh sách sản phẩm</h1>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Tên sản phẩm</th>
-            <th>Danh mục</th>
-            <th>Giá</th>
-            <th>Tồn kho</th>
-            <th>Thao tác</th>
-          </tr>
-        </thead>
+      {message && <p>{message}</p>}
 
-        <tbody>
-          {products.map((p) => (
-            <tr key={p.id}>
-              <td>
-                <Link to={`/products/${p.id}`}>
-                  {p.name}
-                </Link>
-              </td>
+      <FilterBar
+        query={query}
+        category={category}
+        onQueryChange={handleQueryShift}
+        onCategoryChange={setCategory}
+      />
 
-              <td>{p.category}</td>
+      <p>Số sản phẩm tìm thấy: {filteredProducts.length}</p>
 
-              <td>{formatMoney(p.price)}</td>
-
-              <td className={p.stock < 5 ? "low-stock" : ""}>
-                {p.stock}
-              </td>
-
-              <td>
-                <button
-                  onClick={() => increaseStock(p.id)}
-                >
-                  +
-                </button>
-
-                <button
-                  onClick={() => decreaseStock(p.id)}
-                  disabled={p.stock === 0}
-                >
-                  -
-                </button>
-
-                <button
-                  onClick={() => deleteProduct(p.id)}
-                >
-                  Xóa
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+      <ProductTable
+        products={filteredProducts}
+        increaseStock={increaseStock}
+        decreaseStock={decreaseStock}
+        deleteProduct={deleteProduct}
+      />
+    </div>
   );
 }
