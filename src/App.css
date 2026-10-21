@@ -1,0 +1,88 @@
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  color: #222;
+  background: #f5f6fa;
+}
+
+nav {
+  display: flex;
+  gap: 24px;
+  padding: 18px 30px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+}
+
+nav a {
+  color: #333;
+  text-decoration: none;
+}
+
+nav a.active {
+  color: red;
+  font-weight: bold;
+}
+
+main {
+  padding: 24px 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+th,
+td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+tbody tr:hover {
+  background: #eef4ff;
+}
+
+td a {
+  color: #2563eb;
+}
+
+.low-stock {
+  color: red;
+  font-weight: bold;
+}
+
+button,
+input,
+select {
+  padding: 8px;
+  margin: 4px;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+form > div {
+  margin-bottom: 12px;
+}
+
+form label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.error {
+  color: red;
+}
